@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+    <div class="container status-window">
+        <h2>CHARACTER STATUS</h2>
+        
+        <div class="avatar-box" style="padding: 5px;">
+            <img src="pixel_character_sprite_1776946328557.png" alt="Player Character" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        
+        <h2 id="welcome-message" style="font-size: 18px; margin-bottom: 10px;">환영합니다!</h2>
+        <p style="text-align: center; color: #aaa; margin-bottom: 20px;">성공적으로 접속되었습니다.</p>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">LEVEL</div>
+                <div class="stat-value">LV. 1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">CLASS</div>
+                <div class="stat-value">BEGINNER</div>
+            </div>
+            <div class="stat-item" style="grid-column: span 2;">
+                <div class="stat-label">HP</div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar-fill"></div>
+                </div>
+            </div>
+            <div class="stat-item" style="grid-column: span 2;">
+                <div class="stat-label">EXP</div>
+                <div class="hp-bar-container">
+                    <div class="exp-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="inventory-section">
+            <h3 style="font-size: 16px; color: var(--secondary-color); margin-bottom: 15px; border-bottom: 2px solid #555; padding-bottom: 5px;">INVENTORY</h3>
+            <div class="inventory-grid">
+                <div class="inventory-slot">🗡️</div>
+                <div class="inventory-slot">🛡️</div>
+                <div class="inventory-slot">🧪</div>
+                <div class="inventory-slot">💰</div>
+                <div class="inventory-slot"></div>
+                <div class="inventory-slot"></div>
+                <div class="inventory-slot"></div>
+                <div class="inventory-slot"></div>
+            </div>
+        </div>
+
+        <button onclick="handleLogout()" class="btn" style="margin-top: 20px; border-color: #ff0000; color: #ff0000;">GAME EXIT</button>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        const userName = localStorage.getItem('name');
+        if (userName) {
+            document.getElementById('welcome-message').innerText = "勇者 [" + userName + "] 님";
+        } else {
+            window.location.replace('index.html');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>CREATE CHARACTER</h2>
+        <form onsubmit="handleSignup(event)">
+            <div class="input-group">
+                <label for="name">PLAYER NAME</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+            </div>
+            <div class="input-group">
+                <label for="email">PLAYER ID (EMAIL)</label>
+                <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+            </div>
+            <div class="input-group">
+                <label for="password">PASSWORD</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+            <div class="input-group">
+                <label for="password-confirm">CONFIRM PASSWORD</label>
+                <input type="password" id="password-confirm" name="password-confirm" placeholder="비밀번호를 다시 입력하세요" required>
+            </div>
+            <button type="submit" class="btn">CREATE CHARACTER</button>
+        </form>
+        <div class="link-text">
+            ALREADY REGISTERED? <a href="index.html">GO TO LOGIN</a>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
