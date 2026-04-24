@@ -104,18 +104,21 @@ function gameLoop() {
         dino.grounded = true;
     }
 
-    // 공룡 렌더링 (이모지 🦖 사용)
+    // 공룡 렌더링 (이모지 🦖 좌우 반전 적용)
     ctx.save();
     ctx.font = '40px sans-serif';
     ctx.textBaseline = 'top';
+    
+    // 이모지(40x40 기준)의 시각적 중심축 설정
+    let cx = dino.x + dino.width / 2;
+    let cy = dino.y + dino.height - 20; 
+    
+    ctx.translate(cx, cy);
     if (dino.isDucking) {
-        // 숙일 때는 캔버스를 살짝 회전시켜서 엎드린 것처럼 표현
-        ctx.translate(dino.x + 20, dino.y + 20);
-        ctx.rotate(Math.PI / 4);
-        ctx.fillText('🦖', -20, -20);
-    } else {
-        ctx.fillText('🦖', dino.x, dino.y);
+        ctx.rotate(Math.PI / 6); // 시계방향으로 30도 정도 기울여서 앞으로 숙이는 모션
     }
+    ctx.scale(-1, 1); // X축 반전: 기본 왼쪽을 보는 공룡 이모지를 오른쪽(진행방향)으로 뒤집기
+    ctx.fillText('🦖', -20, -20);
     ctx.restore();
 
     // 장애물 생성
