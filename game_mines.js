@@ -1,15 +1,18 @@
-/* game_mines.js - 지뢰찾기 전용 로직 */
-var mGrid = [], mRows = 10, mCols = 10, mCount = 15;
+/* game_mines.js - 스테이지 시스템 및 점수 기반 랭킹 도입 (v40) */
+var mGrid = [], mRows = 10, mCols = 10, mCount = 15, mStage = 1, mTotalScore = 0;
 var mGameOver = false, mFirst = true, mTimer = null, mSec = 0, mRem = 15;
 
-function startMines() {
+function startMines(isNextStage = false) {
+    if (!isNextStage) { mStage = 1; mCount = 15; mTotalScore = 0; }
     mGameOver = false; mFirst = true; mSec = 0; mRem = mCount;
     clearInterval(mTimer);
     document.getElementById('game-status').innerText = '🙂';
     document.getElementById('mine-timer').innerText = '000';
-    document.getElementById('mine-count').innerText = '015';
-    document.getElementById('remaining-count').innerText = '015';
-    document.getElementById('high-score').innerText = (localStorage.getItem('minesBestTime') || '999');
+    document.getElementById('mine-count').innerText = ("00" + mCount).slice(-3);
+    document.getElementById('remaining-count').innerText = ("00" + mCount).slice(-3);
+    
+    // 점수 시스템 도입으로 UI 업데이트 (최고점수는 이제 최고 점수)
+    document.getElementById('high-score').innerText = (localStorage.getItem('minesHighScore') || '0');
 
     mGrid = [];
     var board = document.getElementById('minesBoard');
@@ -104,13 +107,19 @@ function checkWin() {
         clearInterval(mTimer); document.getElementById('game-status').innerText = '😎';
         mGameOver = true;
         
-        var best = localStorage.getItem('minesBestTime');
-        var bestVal = best ? parseInt(best) : 999;
-        if (mSec < bestVal) { 
-            localStorage.setItem('minesBestTime', mSec.toString()); 
-            document.getElementById('high-score').innerText = mSec; 
+        // 점수 계산: (지뢰 1개당 100점) + (보너스: 100초 이내 클리어 시 남은 시간 * 10점)
+        let stageScore = (mCount * 100) + Math.max(0, 100 - mSec) * 10;
+        mTotalScore += stageScore;
+        
+        var best = parseInt(localStorage.getItem('minesHighScore') || '0');
+        if (mTotalScore > best) { 
+            localStorage.setItem('minesHighScore', mTotalScore.toString()); 
+            document.getElementById('high-score').innerText = mTotalScore; 
         }
         
-        saveGameScore('mines', mSec); // 랭킹 저장 (v37)
+        showStageClearModal('mines', mTotalScore, 
+            () => { mStage++; mCount += 5; startMines(true); }, // NEXT STAGE
+            () => { saveGameScore('mines', mTotalScore); } // SAVE SCORE
+        );
     }
 }

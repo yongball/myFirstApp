@@ -1,7 +1,7 @@
-/* game_dino.js - 크롬 공룡 게임 로직 (v39) */
+/* game_dino.js - 크롬 공룡 게임 로직 (v40 - 스테이지 시스템 추가) */
 let canvas, ctx;
 let gameRunning = false;
-let score = 0;
+let score = 0, stage = 1, lastCheckpointScore = 0;
 let highScore = localStorage.getItem('dinoHighScore') || 0;
 
 const dino = {
@@ -48,9 +48,12 @@ function startDino() {
 
 function resetGame() {
     score = 0;
+    stage = 1;
+    lastCheckpointScore = 0;
     obstacles.length = 0;
     obstacleTimer = 0;
     gameSpeed = 5;
+    dino.jumpForce = 12; // 점프력 초기화
     dino.y = 150;
     dino.dy = 0;
     dino.isDucking = false;
@@ -173,6 +176,24 @@ function gameLoop() {
 
     score += 0.1;
     updateScore();
+    
+    // 500점마다 체크포인트 (스테이지 업)
+    if (score - lastCheckpointScore >= 500) {
+        lastCheckpointScore += 500;
+        gameRunning = false; // 게임 일시 정지
+        
+        showStageClearModal('dino', Math.floor(score), 
+            () => { 
+                stage++; 
+                gameSpeed += 2; // 난이도: 기본 속도 대폭 증가
+                dino.jumpForce += 0.5; // 속도가 빠르므로 점프력도 살짝 보정
+                gameRunning = true; 
+                gameLoop(); // 게임 재개
+            },
+            () => { saveGameScore('dino', Math.floor(score)); }
+        );
+        return;
+    }
     
     requestAnimationFrame(gameLoop);
 }

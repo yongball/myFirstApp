@@ -1,6 +1,7 @@
-/* game_tetris.js - 테트리스 고도화 버전 (그리드 & 테마 변환) */
+/* game_tetris.js - 테트리스 스테이지 시스템 도입 (v40) */
 var canvas, ctx, nextCanvas, nextCtx, animId;
-var score = 0, active = false;
+var score = 0, active = false, stage = 1, linesClearedTotal = 0;
+var dropDelay = 800; // 블록 낙하 주기(ms)
 var grid = [], current = null, next = null;
 var lastDrop = 0;
 
@@ -23,7 +24,7 @@ function startTetris() {
     if (!canvas || !nextCanvas) return;
     ctx = canvas.getContext('2d');
     nextCtx = nextCanvas.getContext('2d');
-    active = true; score = 0; currentTheme = THEMES[0];
+    active = true; score = 0; stage = 1; linesClearedTotal = 0; dropDelay = 800; currentTheme = THEMES[0];
     grid = Array.from({ length: 20 }, () => Array(10).fill(0));
     
     document.getElementById('game-score').innerText = '0';
@@ -43,10 +44,6 @@ function getRandomPiece() {
 
 function spawn() {
     current = next;
-    // 테마 체크 (2000점 단위로 변경)
-    var themeIdx = Math.min(Math.floor(score / 2000), THEMES.length - 1);
-    currentTheme = THEMES[themeIdx];
-    
     next = getRandomPiece();
     drawNext();
     if (collision(0, 0, current.shape)) {
@@ -134,21 +131,53 @@ function checkLines() {
     }
     if (cleared > 0) {
         score += [0, 100, 300, 500, 800][cleared];
+        linesClearedTotal += cleared;
         document.getElementById('game-score').innerText = score;
         var hs = parseInt(localStorage.getItem('tetrisHighScore') || '0');
         if (score > hs) { localStorage.setItem('tetrisHighScore', score); document.getElementById('high-score').innerText = score; }
+
+        // 체크포인트(10줄마다) 달성 확인
+        if (linesClearedTotal >= stage * 10) {
+            active = false; // 게임 일시 정지
+            score += 500 * stage; // 스테이지 보너스 점수
+            updateScoreUI();
+            
+            showStageClearModal('tetris', score, 
+                () => { 
+                    stage++; 
+                    dropDelay = Math.max(150, dropDelay - 150); // 속도 대폭 증가
+                    var themeIdx = Math.min(stage - 1, THEMES.length - 1);
+                    currentTheme = THEMES[themeIdx]; // 테마 변경
+                    active = true;
+                    lastDrop = performance.now(); // 시간 초기화
+                    loop(); // 게임 재개
+                },
+                () => { saveGameScore('tetris', score); }
+            );
+        }
     }
+}
+
+function updateScoreUI() {
+    document.getElementById('game-score').innerText = score;
+    var hs = parseInt(localStorage.getItem('tetrisHighScore') || '0');
+    if (score > hs) { localStorage.setItem('tetrisHighScore', score); document.getElementById('high-score').innerText = score; }
 }
 
 function loop(t) {
     if (!active) return;
-    if (t - lastDrop > 800) { move(0, 1); lastDrop = t; }
+    if (!t) t = performance.now();
+    if (t - lastDrop > dropDelay) { move(0, 1); lastDrop = t; }
     draw();
     animId = requestAnimationFrame(loop);
 }
 
 function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 스테이지 텍스트
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('STAGE ' + stage, canvas.width - 10, 30);
     
     // 배경 그리드 그리기
     ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1;

@@ -115,11 +115,8 @@ function confirmRecord(gameId, score) {
     
     rankings.push({ name: nickname, score: Math.floor(score), date: new Date().toLocaleDateString() });
     
-    if (gameId === 'mines') {
-        rankings.sort((a, b) => a.score - b.score);
-    } else {
-        rankings.sort((a, b) => b.score - a.score);
-    }
+    // 지뢰찾기도 점수제로 변경되었으므로 모든 게임을 내림차순(점수 높은 순) 정렬 (v40)
+    rankings.sort((a, b) => b.score - a.score);
     
     localStorage.setItem(`rankings_${gameId}`, JSON.stringify(rankings.slice(0, 5)));
     
@@ -139,12 +136,48 @@ function updateLeaderboardUI(gameId) {
     if (!listElement) return;
     
     const rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
-    listElement.innerHTML = rankings.map((r, i) => `
-        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #333; font-size: 13px; color: ${i === 0 ? '#ffcc00' : '#aaa'}">
-            <span>${i + 1}. ${r.name}</span>
-            <span>${r.score}${gameId === 'mines' ? 's' : ''}</span>
+    let leaderboardHtml = '';
+    rankings.forEach((r, i) => {
+        leaderboardHtml += `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px;">
+                <span style="color: #fff;">${i+1}. ${r.name}</span>
+                <span style="color: #39ff14;">${r.score}${gameId === 'mines' ? 'pts' : ''}</span>
+            </div>
+        `;
+    });
+    listElement.innerHTML = leaderboardHtml || '<div style="color: #555; font-size: 12px; text-align: center; padding: 10px;">기록이 없습니다.</div>';
+}
+
+// 통합 스테이지 클리어 모달 (v40)
+function showStageClearModal(gameId, currentScore, onNextStage, onSaveScore) {
+    const oldModal = document.getElementById('record-modal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'record-modal';
+    modal.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(5px);";
+    
+    modal.innerHTML = `
+        <div class="container" style="width: 320px; text-align: center; border: 4px solid #39ff14; box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);">
+            <h2 style="color: #39ff14; margin-bottom: 15px; font-size: 22px;">🚀 CHECKPOINT!</h2>
+            <p style="font-size: 14px; color: #fff; margin-bottom: 25px;">현재 달성 점수: <span style="color: #ffff00; font-weight: bold; font-size: 20px;">${currentScore}</span></p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button id="btn-next-stage" class="btn" style="width: 100%; border-color: #39ff14; color: #39ff14; padding: 12px; font-size: 14px;">▶ NEXT STAGE (난이도 상승)</button>
+                <button id="btn-save-score" class="btn" style="width: 100%; border-color: #ffcc00; color: #ffcc00; padding: 12px; font-size: 14px;">💾 SAVE SCORE & QUIT</button>
+            </div>
         </div>
-    `).join('') || '<div style="color: #555; font-size: 12px; text-align: center; padding: 10px;">기록이 없습니다.</div>';
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-next-stage').onclick = () => {
+        modal.remove();
+        if (typeof onNextStage === 'function') onNextStage();
+    };
+
+    document.getElementById('btn-save-score').onclick = () => {
+        modal.remove();
+        if (typeof onSaveScore === 'function') onSaveScore();
+    };
 }
 
 function openGameSelect() {
