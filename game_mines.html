@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINESWEEPER - YONGBALL WORLD</title>
+    <link rel="stylesheet" href="style.css?v=10">
+    <style>
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <h2 style="color: var(--primary-color); margin-bottom: 20px;">💣 MINESWEEPER</h2>
+        
+        <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <!-- 메인 게임 보드 -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div style="background: #333; border: 4px inset #555; padding: 10px; display: flex; justify-content: space-between; align-items: center; width: 300px; margin-bottom: 10px;">
+                    <div id="mine-count" style="color: #ff0000; font-size: 24px; background: #000; padding: 2px 5px; border: 2px inset #555; width: 60px; text-align: center;">015</div>
+                    <div id="game-status" style="font-size: 30px; cursor: pointer; border: 3px outset #aaa; background: #777; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" onclick="startMines()">🙂</div>
+                    <div id="mine-timer" style="color: #ff0000; font-size: 24px; background: #000; padding: 2px 5px; border: 2px inset #555; width: 60px; text-align: center;">000</div>
+                </div>
+                <div id="minesBoard" class="mine-board"></div>
+            </div>
+
+            <!-- 사이드 정보 패널 -->
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="background: #222; border: 3px solid #555; padding: 10px; width: 100px; text-align: center;">
+                    <div style="font-size: 12px; color: #aaa; margin-bottom: 5px; text-transform: uppercase;">Best</div>
+                    <div id="high-score" style="color: #39ff14; font-size: 18px; margin-bottom: 10px;">999</div>
+                    
+                    <div style="font-size: 12px; color: #aaa; margin-bottom: 5px; text-transform: uppercase;">Mines</div>
+                    <div id="remaining-count" style="color: #ff0000; font-size: 18px;">015</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <button class="btn" onclick="startMines()" style="width: 120px; font-size: 14px; padding: 10px;">RESTART</button>
+            <button class="btn" onclick="navigateTo('dashboard.html')" style="width: 120px; font-size: 14px; padding: 10px; background-color: #777;">BACK</button>
+        </div>
+        <p style="margin-top: 20px; font-size: 12px; color: #aaa;">[ 좌클릭: 열기 / 우클릭: 깃발 ]</p>
+    </div>
+
+    <script src="auth.js?v=11"></script>
+    <script src="game_mines.js?v=11"></script>
+    <script>
+        window.onload = () => {
+            startMines();
+        }
+    </script>
+</body>
+</html>

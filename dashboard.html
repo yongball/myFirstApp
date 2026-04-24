@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>대시보드 - YONGBALL WORLD</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
     <div class="container status-window">
@@ -72,10 +72,12 @@
                     <span style="font-size: 30px; margin-bottom: 10px;">🧱</span>
                     <span style="font-size: 10px; color: #ff00ff;">TETRIS</span>
                 </div>
-                <div class="inventory-slot" style="height: 120px; opacity: 0.3; cursor: not-allowed;">
-                    <span style="font-size: 30px; margin-bottom: 10px;">🔒</span>
-                    <span style="font-size: 10px;">COMING SOON</span>
+                <!-- 지뢰찾기 팩 -->
+                <div class="inventory-slot" style="height: 120px; flex-direction: column; cursor: pointer;" onclick="navigateTo('game_mines.html')">
+                    <span style="font-size: 30px; margin-bottom: 10px;">💣</span>
+                    <span style="font-size: 10px; color: #39ff14;">MINESWEEPER</span>
                 </div>
+                <!-- 잠긴 슬롯 예시 -->
                 <div class="inventory-slot" style="height: 120px; opacity: 0.3; cursor: not-allowed;">
                     <span style="font-size: 30px; margin-bottom: 10px;">🔒</span>
                     <span style="font-size: 10px;">COMING SOON</span>
@@ -94,11 +96,11 @@
         </div>
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="auth.js?v=11"></script>
     <script>
         const userName = localStorage.getItem('name');
         if (userName) {
-            document.getElementById('welcome-message').innerText = "勇者 [" + userName + "] 님";
+            document.getElementById('welcome-message').innerText = "용환 [" + userName + "] 님";
         } else {
             window.location.replace('index.html');
         }
