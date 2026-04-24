@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINESWEEPER - YONGBALL WORLD</title>
+    <link rel="stylesheet" href="style.css?v=32">
+    <style>
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+<body>
+    <div class="game-wrapper" style="max-width: 900px; width: 95%;">
+        <h2 style="color: var(--primary-color); margin-bottom: 30px; text-align: center; width: 100%;">💣 MINESWEEPER</h2>
+        
+        <div style="display: flex; gap: 30px; align-items: flex-start; justify-content: center; width: 100%;">
+            <!-- 왼쪽: 메인 게임 보드 -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <!-- 정보 바 (지뢰판 폭과 일치시킴) -->
+                <div style="background: #333; border: 4px inset #555; padding: 10px; display: flex; justify-content: space-between; align-items: center; width: 320px; box-sizing: border-box; margin-bottom: 10px;">
+                    <div id="mine-count" style="color: #ff0000; font-size: 24px; background: #000; padding: 2px 8px; border: 2px inset #555; width: 65px; text-align: center; font-family: 'Courier New', monospace;">015</div>
+                    <div id="game-status" style="font-size: 30px; cursor: pointer; border: 3px outset #aaa; background: #777; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;" onclick="startMines()">🙂</div>
+                    <div id="mine-timer" style="color: #ff0000; font-size: 24px; background: #000; padding: 2px 8px; border: 2px inset #555; width: 65px; text-align: center; font-family: 'Courier New', monospace;">000</div>
+                </div>
+                
+                <div id="minesBoard" class="mine-board" style="width: 320px; height: 320px; border: 4px solid #fff; background: #999; box-shadow: 0 0 20px rgba(0,0,0,0.5);"></div>
+            </div>
+
+            <!-- 오른쪽: 정보 사이드바 -->
+            <div style="display: flex; flex-direction: column; gap: 20px; width: 240px;">
+                <!-- 최고 기록 패널 -->
+                <div style="background: rgba(0,0,0,0.5); border: 2px solid #555; padding: 15px; text-align: center;">
+                    <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">BEST TIME</div>
+                    <div id="high-score" style="color: #39ff14; font-size: 28px; font-weight: bold;">999</div>
+                    <div style="font-size: 10px; color: #666; margin-top: 8px; border-top: 1px solid #333; padding-top: 5px;">MINES: <span id="remaining-count">015</span></div>
+                </div>
+
+                <!-- 조작법 패널 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 12px; font-size: 13px; color: #ccc; line-height: 1.5;">
+                    <div style="color: #39ff14; font-weight: bold; margin-bottom: 5px;">CONTROLS</div>
+                    • 좌클릭: 칸 열기<br>
+                    • 우클릭: 깃발 설치
+                </div>
+
+                <!-- 명예의 전당 (리더보드) -->
+                <div style="background: rgba(0,0,0,0.6); border: 2px solid #ffcc00; padding: 15px;">
+                    <h3 style="font-size: 13px; color: #ffcc00; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #444; padding-bottom: 5px;">🏆 TOP 5 RECORDS</h3>
+                    <div id="leaderboard-list">
+                        <!-- auth.js에서 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <!-- 게임 컨트롤 버튼 -->
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button class="btn" onclick="navigateTo('dashboard.html')" style="flex: 1; padding: 10px; font-size: 13px;">BACK</button>
+                    <button class="btn" onclick="startMines()" style="flex: 1; padding: 10px; font-size: 13px; border-color: #39ff14; color: #39ff14;">RESTART</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js?v=38"></script>
+    <script src="game_mines.js?v=38"></script>
+    <script>
+        window.onload = () => {
+            updateLeaderboardUI('mines');
+            if (typeof startMines === 'function') {
+                startMines();
+            }
+        }
+    </script>
+</body>
+</html>

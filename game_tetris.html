@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TETRIS - YONGBALL WORLD</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=32">
     <style>
         .game-wrapper {
             display: flex;
@@ -18,29 +18,69 @@
     </style>
 </head>
 <body>
-    <div class="game-wrapper">
-        <div class="game-title" style="font-size: 24px; color: #ff00ff;">TETRIS</div>
+    <div class="game-wrapper" style="max-width: 900px; width: 95%;">
+        <h2 style="color: var(--primary-color); margin-bottom: 30px; text-align: center; width: 100%;">🧱 TETRIS</h2>
         
-        <div id="game-container" style="position: relative; background: #000; border: 4px solid #fff; overflow: hidden; margin-bottom: 20px;">
-            <canvas id="tetrisCanvas" width="200" height="400"></canvas>
-            <div id="game-score" style="position: absolute; top: 15px; right: 15px; color: #ffff00; font-size: 18px; text-shadow: 2px 2px 0 #000;">SCORE: 0</div>
-        </div>
+        <div style="display: flex; gap: 30px; align-items: flex-start; justify-content: center; width: 100%;">
+            <!-- 왼쪽: 메인 게임 보드 -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div id="game-container" style="position: relative; background: #000; border: 4px solid #fff; box-shadow: 0 0 20px rgba(169, 68, 66, 0.2);">
+                    <canvas id="tetrisCanvas" width="240" height="400"></canvas>
+                </div>
+            </div>
 
-        <div style="display: flex; gap: 15px;">
-            <button class="btn" onclick="navigateTo('dashboard.html')" style="padding: 10px 25px;">BACK TO MENU</button>
-            <button class="btn" onclick="location.reload()" style="padding: 10px 25px; border-color: #ffff00; color: #ffff00;">RESTART</button>
-        </div>
-        
-        <div style="margin-top: 20px; color: #aaa; font-size: 11px; text-align: center; line-height: 1.6;">
-            [ 키보드 방향키로 조작하세요 ]<br>
-            ← → : 이동 / ↑ : 회전 / ↓ : 빠르게 내리기
+            <!-- 오른쪽: 정보 사이드바 -->
+            <div style="display: flex; flex-direction: column; gap: 20px; width: 240px;">
+                <!-- 스코어 및 NEXT 패널 -->
+                <div style="display: flex; gap: 10px;">
+                    <div style="background: rgba(0,0,0,0.5); border: 2px solid #555; padding: 10px; flex: 1; text-align: center;">
+                        <div style="font-size: 10px; color: #aaa; margin-bottom: 3px;">SCORE</div>
+                        <div id="game-score" style="color: #ffff00; font-size: 20px; font-weight: bold;">0</div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); border: 2px solid #555; padding: 10px; flex: 1; text-align: center;">
+                        <div style="font-size: 10px; color: #aaa; margin-bottom: 3px;">NEXT</div>
+                        <div style="background: #000; display: inline-block; padding: 2px;">
+                            <canvas id="nextCanvas" width="50" height="50"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 조작법 패널 -->
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 12px; font-size: 12px; color: #ccc; line-height: 1.5;">
+                    <div style="color: #00ffff; font-weight: bold; margin-bottom: 5px;">CONTROLS</div>
+                    • ←→ : 이동 / ↑ : 회전<br>
+                    • ↓ : 가속 / Space : 드롭
+                </div>
+
+                <!-- 명예의 전당 (리더보드) -->
+                <div style="background: rgba(0,0,0,0.6); border: 2px solid #ffcc00; padding: 15px;">
+                    <h3 style="font-size: 13px; color: #ffcc00; margin-bottom: 10px; text-align: center; border-bottom: 1px solid #444; padding-bottom: 5px;">🏆 TOP 5 RECORDS</h3>
+                    <div id="leaderboard-list">
+                        <!-- auth.js에서 동적으로 생성됨 -->
+                    </div>
+                </div>
+
+                <!-- 게임 컨트롤 버튼 -->
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button class="btn" onclick="navigateTo('dashboard.html')" style="flex: 1; padding: 10px; font-size: 13px;">BACK</button>
+                    <button class="btn" onclick="location.reload()" style="flex: 1; padding: 10px; font-size: 13px; border-color: #ffff00; color: #ffff00;">RESTART</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- 호환성을 위한 숨겨진 요소 -->
+    <span id="tetris-score" style="display:none;">0</span>
+    <span id="tetris-level" style="display:none;">1</span>
+
+    <script src="auth.js?v=38"></script>
+    <script src="game_tetris.js?v=38"></script>
     <script>
         window.onload = () => {
-            startTetris();
+            updateLeaderboardUI('tetris');
+            if (typeof startTetris === 'function') {
+                startTetris();
+            }
         };
     </script>
 </body>

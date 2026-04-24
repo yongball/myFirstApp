@@ -3,29 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <title>로그인 - YONGBALL WORLD</title>
+    <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
-    <div class="container" style="text-align: center;">
-        <div class="game-title">YONGBALL WORLD</div>
-        <h2>PLAYER LOGIN</h2>
-        <form action="#" method="POST">
-            <div class="input-group">
-                <label for="email">PLAYER ID (EMAIL)</label>
-                <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
-            </div>
-            <div class="input-group">
-                <label for="password">PASSWORD</label>
-                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
-            </div>
-            <button type="button" class="btn" onclick="handleLogin()">LOGIN</button>
-            <button type="button" class="btn" onclick="handleGuestLogin()" style="margin-top: 15px; border-color: #ffff00; color: #ffff00;">GUEST LOGIN</button>
-        </form>
-        <div class="link-text">
-            NEW PLAYER? <a href="signup.html">CREATE ACCOUNT</a>
+    <div class="container" style="text-align: center; padding: 60px 30px;">
+        <h1 class="game-title" style="margin-bottom: 40px;">YONGBALL<br>WORLD</h1>
+        
+        <div style="display: flex; flex-direction: column; gap: 18px; width: 100%;">
+            <button class="btn" onclick="handleGuestLogin()">GUEST LOGIN</button>
+            <button class="btn" onclick="navigateTo('login.html')" style="background-color: transparent; border-color: #555; color: #888;">EMAIL LOGIN</button>
+        </div>
+
+        <div style="margin-top: 35px; font-size: 13px; color: #666; letter-spacing: 1px;">
+            NEW PLAYER? <a href="signup.html" style="color: var(--primary-color); text-decoration: none; font-weight: bold; border-bottom: 1px solid var(--primary-color); padding-bottom: 2px;">CREATE ACCOUNT</a>
         </div>
     </div>
-    <script src="script.js?v=2"></script>
+    <script src="auth.js?v=33"></script>
 </body>
 </html>
