@@ -135,7 +135,16 @@ function updateLeaderboardUI(gameId) {
     const listElement = document.getElementById('leaderboard-list');
     if (!listElement) return;
     
-    const rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
+    let rankings = [];
+    try {
+        rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
+        if (!Array.isArray(rankings)) rankings = [];
+    } catch(e) {
+        console.error("리더보드 데이터를 불러오는데 실패했습니다. 기록을 초기화합니다.");
+        rankings = [];
+        localStorage.setItem(`rankings_${gameId}`, '[]');
+    }
+    
     let leaderboardHtml = '';
     rankings.forEach((r, i) => {
         leaderboardHtml += `

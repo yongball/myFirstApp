@@ -1,0 +1,14 @@
+const puppeteer = require('puppeteer');
+
+(async () => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    
+    page.on('console', msg => console.log('BROWSER CONSOLE:', msg.type(), msg.text()));
+    page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
+    
+    await page.goto('file:///Users/yongball/Desktop/dev/myFirstApp/game_tetris.html', { waitUntil: 'networkidle0' });
+    await page.screenshot({ path: 'tetris_debug.png' });
+    
+    await browser.close();
+})();
