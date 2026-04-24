@@ -1,14 +1,21 @@
-/* game_tetris.js - 테트리스 전용 로직 */
+/* game_tetris.js - 테트리스 고도화 버전 (그리드 & 테마 변환) */
 var canvas, ctx, nextCanvas, nextCtx, animId;
 var score = 0, active = false;
 var grid = [], current = null, next = null;
 var lastDrop = 0;
 
+// 테마별 색상 세트
+var THEMES = [
+    { 'I': '#00ffff', 'J': '#0000ff', 'L': '#ffaa00', 'O': '#ffff00', 'S': '#00ff00', 'T': '#aa00ff', 'Z': '#ff0000' }, // Classic
+    { 'I': '#ff00ff', 'J': '#7df9ff', 'L': '#ffef00', 'O': '#39ff14', 'S': '#ff3131', 'T': '#bc13fe', 'Z': '#ff5e00' }, // Neon 2
+    { 'I': '#ffb3ba', 'J': '#bae1ff', 'L': '#ffffba', 'O': '#baffc9', 'S': '#ffdfba', 'T': '#eecbff', 'Z': '#ffc3a0' }  // Pastel
+];
+var currentTheme = THEMES[0];
+
 var SHAPES = {
     'I': [[1, 1, 1, 1]], 'J': [[1, 0, 0], [1, 1, 1]], 'L': [[0, 0, 1], [1, 1, 1]],
     'O': [[1, 1], [1, 1]], 'S': [[0, 1, 1], [1, 1, 0]], 'T': [[0, 1, 0], [1, 1, 1]], 'Z': [[1, 1, 0], [0, 1, 1]]
 };
-var COLORS = { 'I': '#00ffff', 'J': '#0000ff', 'L': '#ffaa00', 'O': '#ffff00', 'S': '#00ff00', 'T': '#aa00ff', 'Z': '#ff0000' };
 
 function startTetris() {
     canvas = document.getElementById('tetrisCanvas');
@@ -16,7 +23,7 @@ function startTetris() {
     if (!canvas || !nextCanvas) return;
     ctx = canvas.getContext('2d');
     nextCtx = nextCanvas.getContext('2d');
-    active = true; score = 0;
+    active = true; score = 0; currentTheme = THEMES[0];
     grid = Array.from({ length: 20 }, () => Array(10).fill(0));
     
     document.getElementById('game-score').innerText = '0';
@@ -31,17 +38,20 @@ function startTetris() {
 function getRandomPiece() {
     var types = Object.keys(SHAPES);
     var t = types[Math.floor(Math.random() * types.length)];
-    return { type: t, shape: SHAPES[t], x: 3, y: 0, color: COLORS[t] };
+    return { type: t, shape: SHAPES[t], x: 3, y: 0, color: currentTheme[t] };
 }
 
 function spawn() {
     current = next;
+    // 테마 체크 (2000점 단위로 변경)
+    var themeIdx = Math.min(Math.floor(score / 2000), THEMES.length - 1);
+    currentTheme = THEMES[themeIdx];
+    
     next = getRandomPiece();
     drawNext();
     if (collision(0, 0, current.shape)) {
-        alert("GAME OVER!");
         active = false;
-        window.location.href = 'dashboard.html';
+        saveGameScore('tetris', score); // 랭킹 저장 (v37)
     }
 }
 
@@ -53,7 +63,8 @@ function drawNext() {
     next.shape.forEach((row, r) => {
         row.forEach((v, c) => {
             if (v) {
-                nextCtx.fillStyle = next.color; nextCtx.fillRect(ox + c*s, oy + r*s, s-1, s-1);
+                nextCtx.fillStyle = currentTheme[next.type]; // 현재 테마 색상 적용
+                nextCtx.fillRect(ox + c*s, oy + r*s, s-1, s-1);
                 nextCtx.strokeStyle = '#fff'; nextCtx.strokeRect(ox + c*s, oy + r*s, s-1, s-1);
             }
         });
@@ -82,9 +93,15 @@ function move(dx, dy) {
 
 function rotate() {
     var r = current.shape[0].map((_, i) => current.shape.map(row => row[i]).reverse());
-    if (!collision(0, 0, r)) current.shape = r;
-    else if (!collision(-1, 0, r)) { current.x -= 1; current.shape = r; }
-    else if (!collision(1, 0, r)) { current.x += 1; current.shape = r; }
+    // 멀티 오프셋 월 킥 (회전 시 빈 공간 찾기)
+    var offsets = [0, -1, 1, -2, 2];
+    for (var i = 0; i < offsets.length; i++) {
+        if (!collision(offsets[i], 0, r)) {
+            current.x += offsets[i];
+            current.shape = r;
+            return;
+        }
+    }
 }
 
 function collision(dx, dy, s) {
@@ -101,7 +118,12 @@ function collision(dx, dy, s) {
 
 function lock() {
     current.shape.forEach((row, r) => {
-        row.forEach((v, c) => { if (v && current.y + r >= 0) grid[current.y + r][current.x + c] = current.color; });
+        row.forEach((v, c) => { 
+            if (v && current.y + r >= 0) {
+                // 고정될 때의 색상도 현재 테마 색상으로 저장
+                grid[current.y + r][current.x + c] = currentTheme[current.type]; 
+            }
+        });
     });
 }
 
@@ -127,11 +149,19 @@ function loop(t) {
 
 function draw() {
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 배경 그리드 그리기
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1;
+    for(var i=0; i<=10; i++) { ctx.beginPath(); ctx.moveTo(i*20, 0); ctx.lineTo(i*20, 400); ctx.stroke(); }
+    for(var j=0; j<=20; j++) { ctx.beginPath(); ctx.moveTo(0, j*20); ctx.lineTo(200, j*20); ctx.stroke(); }
+
     grid.forEach((row, r) => { row.forEach((v, c) => { if(v) drawBlock(c, r, v); }); });
-    if (current) current.shape.forEach((row, r) => { row.forEach((v, c) => { if(v) drawBlock(current.x+c, current.y+r, current.color); }); });
+    if (current) current.shape.forEach((row, r) => { row.forEach((v, c) => { if(v) drawBlock(current.x+c, current.y+r, currentTheme[current.type]); }); });
 }
 
 function drawBlock(x, y, color) {
     ctx.fillStyle = color; ctx.fillRect(x*20, y*20, 19, 19);
-    ctx.strokeStyle = '#fff'; ctx.strokeRect(x*20, y*20, 19, 19);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(x*20, y*20, 19, 19);
+    // 블록 내부 광택 효과
+    ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(x*20, y*20, 19, 5);
 }

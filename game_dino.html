@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUZZLE BOBBLE - YONGBALL WORLD</title>
-    <link rel="stylesheet" href="style.css?v=32">
+    <title>DINO RUN - YONGBALL WORLD</title>
+    <link rel="stylesheet" href="style.css?v=34">
     <style>
         .game-wrapper {
             display: flex;
@@ -13,36 +13,39 @@
             padding: 20px;
         }
         #game-container {
-            box-shadow: 0 0 30px var(--primary-color);
+            box-shadow: 0 0 30px #ffcc00;
+            background: #000;
+            border: 4px solid #fff;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <div class="game-wrapper" style="max-width: 900px; width: 95%;">
-        <h2 style="color: var(--primary-color); margin-bottom: 30px; text-align: center; width: 100%;">🔵 PUZZLE BOBBLE</h2>
+    <div class="game-wrapper" style="max-width: 1000px; width: 95%;">
+        <h2 style="color: #ffcc00; margin-bottom: 30px; text-align: center; width: 100%;">🦖 DINO RUN</h2>
         
         <div style="display: flex; gap: 30px; align-items: flex-start; justify-content: center; width: 100%;">
             <!-- 왼쪽: 메인 게임 보드 -->
             <div style="display: flex; flex-direction: column; align-items: center;">
-                <div id="game-container" style="position: relative; background: #000; border: 4px solid #fff; box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); cursor: crosshair;">
-                    <canvas id="gameCanvas" width="320" height="480"></canvas>
+                <div id="game-container" style="box-shadow: 0 0 30px #ffcc00; background: #000; border: 4px solid #fff; overflow: hidden;">
+                    <canvas id="dinoCanvas" width="600" height="200"></canvas>
                 </div>
             </div>
 
             <!-- 오른쪽: 정보 사이드바 -->
-            <div style="display: flex; flex-direction: column; gap: 20px; width: 240px;">
+            <div style="display: flex; flex-direction: column; gap: 20px; width: 220px;">
                 <!-- 점수 패널 -->
                 <div style="background: rgba(0,0,0,0.5); border: 2px solid #555; padding: 15px; text-align: center;">
-                    <div style="font-size: 12px; color: #aaa; margin-bottom: 5px;">CURRENT SCORE</div>
-                    <div id="game-score" style="color: #ffff00; font-size: 28px; font-weight: bold;">0</div>
-                    <div style="font-size: 10px; color: #666; margin-top: 8px; border-top: 1px solid #333; padding-top: 5px;">MY BEST: <span id="high-score">0</span></div>
+                    <div style="font-size: 11px; color: #aaa; margin-bottom: 3px;">SCORE</div>
+                    <div id="game-score" style="color: #ffff00; font-size: 24px; font-weight: bold;">0</div>
+                    <div style="font-size: 10px; color: #666; margin-top: 8px; border-top: 1px solid #333; padding-top: 5px;">BEST: <span id="high-score">0</span></div>
                 </div>
 
                 <!-- 조작법 패널 -->
                 <div style="background: rgba(0,0,0,0.3); border: 1px solid #444; padding: 12px; font-size: 13px; color: #ccc; line-height: 1.5;">
-                    <div style="color: var(--primary-color); font-weight: bold; margin-bottom: 5px;">CONTROLS</div>
-                    • 마우스: 조준<br>
-                    • 클릭: 발사
+                    <div style="color: #ffcc00; font-weight: bold; margin-bottom: 5px;">CONTROLS</div>
+                    • Space : 점프<br>
+                    • 마우스 클릭 : 점프
                 </div>
 
                 <!-- 명예의 전당 (리더보드) -->
@@ -56,23 +59,19 @@
                 <!-- 게임 컨트롤 버튼 -->
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <button class="btn" onclick="navigateTo('dashboard.html')" style="flex: 1; padding: 10px; font-size: 13px;">BACK</button>
-                    <button class="btn" onclick="location.reload()" style="flex: 1; padding: 10px; font-size: 13px; border-color: #ffff00; color: #ffff00;">RESTART</button>
+                    <button class="btn" onclick="location.reload()" style="flex: 1; padding: 10px; font-size: 13px; border-color: #ffcc00; color: #ffcc00;">RESTART</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 호환성을 위한 숨겨진 요소 -->
-    <span id="score" style="display:none;">0</span>
-
     <script src="auth.js?v=38"></script>
-    <script src="game_bobble.js?v=38"></script>
+    <script src="game_dino.js?v=38"></script>
     <script>
-        // 페이지 로드 시 바로 게임 시작
         window.onload = () => {
-            updateLeaderboardUI('bobble');
-            if (typeof startGame === 'function') {
-                startGame();
+            updateLeaderboardUI('dino');
+            if (typeof startDino === 'function') {
+                startDino();
             }
         };
     </script>

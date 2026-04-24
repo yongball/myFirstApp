@@ -1,15 +1,14 @@
 @import url("https://cdn.jsdelivr.net/gh/neodgm/neodgm-webfont@latest/neodgm/style.css");
 
 :root {
-    --bg-color: #1a1a1a;
-    --container-bg: #2d2d2d;
-    --primary-color: #39ff14; /* Retro Neon Green */
-    --secondary-color: #ff00ff; /* Retro Neon Purple */
-    --text-color: #ffffff;
-    --border-color: #ffffff;
-    --pixel-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.5);
-    --btn-shadow: inset -4px -4px 0px 0px #222, inset 4px 4px 0px 0px #555;
-    --btn-active-shadow: inset 4px 4px 0px 0px #222, inset -4px -4px 0px 0px #555;
+    --bg-color: #1a1a1b;
+    --container-bg: #242426;
+    --primary-color: #88b04b; /* 차분한 세이지 그린 */
+    --secondary-color: #c5a059; /* 은은한 앤틱 골드 */
+    --text-color: #b0b0b0; /* 부드러운 라이트 그레이 */
+    --border-color: #444; /* 눈에 띄지 않는 차분한 테두리 */
+    --pixel-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 0.4);
+    --btn-shadow: inset -3px -3px 0px 0px #1a1a1a, inset 3px 3px 0px 0px #333;
 }
 
 * {
@@ -33,24 +32,92 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-color);
-    /* 우주 배경 이미지 적용 */
-    background-image: url('pixel_space_background.png');
+    background-color: #000;
+    /* 고해상도 우주 배경 및 어두운 필터 */
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('pixel_space_background.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
-    color: var(--text-color);
+    color: #e0e0e0;
+    position: relative;
+    overflow-x: hidden;
+    /* 전체 페이지 페이드 인 효과 */
+    animation: fadeInPage 0.8s ease-out;
+}
+
+/* CRT 스캔라인 효과 레이어 */
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    z-index: 9999;
+    background-size: 100% 3px, 3px 100%;
+    pointer-events: none;
+}
+
+/* 비네팅 효과 (화면 외곽 어둡게) */
+body::after {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.5) 100%);
+    z-index: 9998;
+    pointer-events: none;
+}
+
+/* 양각 효과가 적용된 플레이 버튼 */
+.btn-play {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+    border: none;
+    box-shadow: 
+        inset 4px 4px 0px rgba(255,255,255,0.4), /* 상단 양각 광택 */
+        inset -4px -4px 0px rgba(0,0,0,0.3),     /* 하단 음영 */
+        4px 4px 0px rgba(0,0,0,0.2) !important;   /* 전체 그림자 */
+    transition: transform 0.1s;
+}
+.btn-play:active {
+    transform: scale(0.98);
+    box-shadow: 
+        inset -4px -4px 0px rgba(255,255,255,0.4),
+        inset 4px 4px 0px rgba(0,0,0,0.3) !important;
+}
+
+/* 테두리 스타일의 종료 버튼 */
+.btn-exit {
+    background-color: transparent !important;
+    color: #a94442 !important;
+    border: 2px solid #a94442 !important;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.2) !important;
+    transition: all 0.2s;
+}
+.btn-exit:hover {
+    background-color: rgba(169, 68, 66, 0.1) !important;
+}
+.btn-exit:active {
+    background-color: #a94442 !important;
+    color: #fff !important;
+    transform: scale(0.98);
 }
 
 .container {
-    background-color: var(--container-bg);
+    background: rgba(36, 36, 38, 0.85); /* 반투명 배경 */
+    backdrop-filter: blur(10px); /* 글래스모피즘 핵심: 뒷배경 블러 */
+    -webkit-backdrop-filter: blur(10px);
+    border: 3px solid #444;
     padding: 30px;
-    border: 4px solid var(--border-color);
-    box-shadow: var(--pixel-shadow);
-    width: 90%;
-    max-width: 450px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 
+        0 0 20px rgba(0,0,0,0.5),
+        inset 0 0 10px rgba(255,255,255,0.05);
     position: relative;
+    z-index: 10;
 }
 
 /* Retro Pixel Border Corners */
@@ -78,9 +145,64 @@ body {
     animation: floating 2s ease-in-out infinite;
 }
 
-@keyframes floating {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+/* 레트로 커스텀 스크롤바 */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #1a1a1b;
+}
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border: 2px solid #1a1a1b;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* 인벤토리 슬롯 고도화 (v32) */
+.inventory-slot {
+    background-color: rgba(26, 26, 27, 0.9);
+    border: 2px solid #333;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    image-rendering: pixelated;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.inventory-slot::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.inventory-slot:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(136, 176, 75, 0.15);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 10px 20px rgba(0,0,0,0.5),
+        0 0 12px rgba(136, 176, 75, 0.5);
+    z-index: 2;
+}
+
+.inventory-slot:hover::after {
+    opacity: 1;
+}
+
+/* 페이지 전체 페이드인 애니메이션 정의 */
+@keyframes fadeInPage {
+    from { opacity: 0; filter: blur(10px); }
+    to { opacity: 1; filter: blur(0); }
 }
 
 h2 {
@@ -119,26 +241,30 @@ h2 {
 }
 
 .btn {
-    width: 100%;
-    padding: 15px;
-    margin-top: 10px;
-    background-color: #444;
-    color: white;
-    border: 4px solid var(--border-color);
-    box-shadow: var(--btn-shadow);
-    font-size: 18px;
+    background-color: #2a2a2a;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 12px 20px;
+    font-size: 15px;
     cursor: pointer;
+    position: relative;
+    box-shadow: 3px 3px 0px #1a1a1a;
+    transition: all 0.2s;
     text-transform: uppercase;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .btn:hover {
-    background-color: #555;
-    color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: #1a1a1b;
+    box-shadow: none;
+    transform: translate(1px, 1px);
 }
 
 .btn:active {
-    box-shadow: var(--btn-active-shadow);
-    transform: translate(2px, 2px);
+    transform: translate(3px, 3px);
+    box-shadow: none;
 }
 
 .link-text {
@@ -253,36 +379,31 @@ h2 {
     border: 1px dashed #333;
 }
 
-.inventory-slot:empty::before {
-    content: '';
-    width: 40%;
-    height: 40%;
-    border: 1px dashed #333;
-}
-
-/* Modal Popup Styles */
+/* Modal Popup Styles - 최상단 고정 정중앙 배치 */
 .modal-overlay {
     display: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.85);
-    z-index: 1000;
+    backdrop-filter: blur(8px);
+    z-index: 9999; /* 다른 모든 요소보다 위에 배치 */
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(2px);
 }
 
 .modal-content {
-    background-color: #222;
-    border: 4px solid #fff;
-    box-shadow: 8px 8px 0px #000;
-    padding: 30px;
-    width: 85%;
-    max-width: 350px;
+    background-color: #242426;
+    border: 4px solid var(--primary-color);
+    padding: 35px;
+    width: 320px;
     text-align: center;
+    box-shadow: 0 0 40px rgba(57, 255, 20, 0.3);
     position: relative;
-    animation: modalPop 0.2s steps(4);
+    image-rendering: pixelated;
+    animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes modalPop {

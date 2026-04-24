@@ -101,9 +101,16 @@ function checkWin() {
         if (!mGrid[r][c].mine && !mGrid[r][c].revealed) win = false;
     } }
     if (win) {
-        clearInterval(mTimer); document.getElementById('game-status').innerText = '😎'; mGameOver = true;
-        var best = parseInt(localStorage.getItem('minesBestTime') || '999');
-        if (mSec < best) { localStorage.setItem('minesBestTime', mSec); document.getElementById('high-score').innerText = mSec; }
-        alert("SAFE! YOU WIN IN " + mSec + " SECONDS!");
+        clearInterval(mTimer); document.getElementById('game-status').innerText = '😎';
+        mGameOver = true;
+        
+        var best = localStorage.getItem('minesBestTime');
+        var bestVal = best ? parseInt(best) : 999;
+        if (mSec < bestVal) { 
+            localStorage.setItem('minesBestTime', mSec.toString()); 
+            document.getElementById('high-score').innerText = mSec; 
+        }
+        
+        saveGameScore('mines', mSec); // 랭킹 저장 (v37)
     }
 }

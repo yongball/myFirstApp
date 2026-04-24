@@ -4,7 +4,7 @@ function navigateTo(url) {
 }
 
 function handleGuestLogin() {
-    localStorage.setItem('name', '게스트');
+    localStorage.setItem('name', '용환'); // 요청하신 대로 '용환'으로 수정
     window.location.href = 'dashboard.html';
 }
 
@@ -71,5 +71,92 @@ function showItemInfo(item) {
     }
 }
 function closeItemInfo() { document.getElementById('item-modal').style.display = 'none'; }
-function openGameSelect() { document.getElementById('game-select-modal').style.display = 'flex'; }
-function closeGameSelect() { document.getElementById('game-select-modal').style.display = 'none'; }
+/* 랭킹 시스템 (v37) */
+function saveGameScore(gameId, score) {
+    const rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
+    const isMines = (gameId === 'mines');
+    
+    // 기록 달성 여부 확인 (Top 5 이내)
+    const qualifies = rankings.length < 5 || 
+                     (isMines ? score < rankings[rankings.length-1].score : score > rankings[rankings.length-1].score);
+
+    if (qualifies) {
+        showRecordModal(gameId, score, rankings);
+    } else {
+        updateLeaderboardUI(gameId);
+    }
+}
+
+function showRecordModal(gameId, score, rankings) {
+    // 기존 모달이 있다면 제거
+    const oldModal = document.getElementById('record-modal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'record-modal';
+    modal.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(5px);";
+    
+    modal.innerHTML = `
+        <div class="container" style="width: 300px; text-align: center; border: 4px solid #ffcc00; box-shadow: 0 0 30px rgba(255, 204, 0, 0.4);">
+            <h2 style="color: #ffcc00; margin-bottom: 15px; font-size: 20px;">🏆 NEW RECORD!</h2>
+            <p style="font-size: 14px; color: #fff; margin-bottom: 20px;">당신의 기록: <span style="color: #ffff00; font-weight: bold;">${score}${gameId === 'mines' ? 's' : ''}</span></p>
+            <input type="text" id="record-nickname" maxlength="8" placeholder="NICKNAME (8자)" 
+                   style="width: 100%; padding: 12px; background: #222; border: 2px solid #555; color: #fff; text-align: center; margin-bottom: 20px; font-family: inherit;">
+            <button class="btn" onclick="confirmRecord('${gameId}', ${score})" style="width: 100%;">REGISTER</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.getElementById('record-nickname').focus();
+}
+
+function confirmRecord(gameId, score) {
+    const nickname = document.getElementById('record-nickname').value.trim() || '[무명]';
+    const rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
+    
+    rankings.push({ name: nickname, score: Math.floor(score), date: new Date().toLocaleDateString() });
+    
+    if (gameId === 'mines') {
+        rankings.sort((a, b) => a.score - b.score);
+    } else {
+        rankings.sort((a, b) => b.score - a.score);
+    }
+    
+    localStorage.setItem(`rankings_${gameId}`, JSON.stringify(rankings.slice(0, 5)));
+    
+    document.getElementById('record-modal').remove();
+    updateLeaderboardUI(gameId);
+    
+    // 대시보드로 이동 여부 (지뢰찾기 등은 alert 후 이동하므로 여기서 처리)
+    setTimeout(() => {
+        if (confirm('기록이 등록되었습니다! 대시보드로 돌아가시겠습니까?')) {
+            window.location.href = 'dashboard.html';
+        }
+    }, 100);
+}
+
+function updateLeaderboardUI(gameId) {
+    const listElement = document.getElementById('leaderboard-list');
+    if (!listElement) return;
+    
+    const rankings = JSON.parse(localStorage.getItem(`rankings_${gameId}`) || '[]');
+    listElement.innerHTML = rankings.map((r, i) => `
+        <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #333; font-size: 13px; color: ${i === 0 ? '#ffcc00' : '#aaa'}">
+            <span>${i + 1}. ${r.name}</span>
+            <span>${r.score}${gameId === 'mines' ? 's' : ''}</span>
+        </div>
+    `).join('') || '<div style="color: #555; font-size: 12px; text-align: center; padding: 10px;">기록이 없습니다.</div>';
+}
+
+function openGameSelect() {
+    const modal = document.getElementById('game-select-modal');
+    if (modal) {
+        modal.style.display = 'flex'; // flex로 설정해야 정중앙 정렬이 작동함
+    }
+}
+
+function closeGameSelect() {
+    const modal = document.getElementById('game-select-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
