@@ -1,7 +1,13 @@
-/* --- 공통 유틸리티 --- */
+/* --- 공통 유틸리티 및 전역 변수 --- */
 function navigateTo(url) {
     window.location.href = url;
 }
+
+// 중복 선언 방지를 위해 전역 변수 통합
+let score = 0;
+let animationId = null;
+let canvas = null;
+let ctx = null;
 
 /* --- 회원가입 및 로그인 로직 --- */
 function handleSignup(event) {
@@ -65,18 +71,16 @@ function handleLogout() {
     window.location.replace('index.html');
 }
 
-/* --- 대시보드 인벤토리 및 모달 제어 --- */
+/* --- 대시보드 및 모달 제어 --- */
 function showItemInfo(item) {
     const modal = document.getElementById('item-modal');
     if (!modal) return;
-
     const items = {
         'sword': { name: '낡은 검', desc: '초보 용사의 낡은 검. 녹이 슬었지만 아직 날카롭다.' },
         'shield': { name: '나무 방패', desc: '튼튼한 나무 방패. 웬만한 공격은 막아낼 수 있다.' },
         'potion': { name: '빨간 물약', desc: '신비로운 물약. 마시면 체력이 솟구친다!' },
         'gold': { name: '금화', desc: '반짝이는 금화. 시장에서 맛있는 걸 살 수 있다.' }
     };
-
     const info = items[item];
     if (info) {
         document.getElementById('modal-item-name').innerText = `[ ${info.name} ]`;
@@ -100,11 +104,6 @@ function closeGameSelect() {
     if (modal) modal.style.display = 'none';
 }
 
-/* --- 게임 엔진 공통 변수 --- */
-let score = 0;
-let animationId;
-let canvas, ctx;
-
 /* --- 미니 게임 1: TETRIS --- */
 let tetrisActive = false;
 let tetrisGrid = [];
@@ -114,25 +113,15 @@ const BLOCK_SIZE = 20;
 let currentPiece = null;
 
 const SHAPES = {
-    'I': [[1, 1, 1, 1]],
-    'J': [[1, 0, 0], [1, 1, 1]],
-    'L': [[0, 0, 1], [1, 1, 1]],
-    'O': [[1, 1], [1, 1]],
-    'S': [[0, 1, 1], [1, 1, 0]],
-    'T': [[0, 1, 0], [1, 1, 1]],
-    'Z': [[1, 1, 0], [0, 1, 1]]
+    'I': [[1, 1, 1, 1]], 'J': [[1, 0, 0], [1, 1, 1]], 'L': [[0, 0, 1], [1, 1, 1]],
+    'O': [[1, 1], [1, 1]], 'S': [[0, 1, 1], [1, 1, 0]], 'T': [[0, 1, 0], [1, 1, 1]], 'Z': [[1, 1, 0], [0, 1, 1]]
 };
-
-const SHAPE_COLORS = {
-    'I': '#00ffff', 'J': '#0000ff', 'L': '#ffaa00',
-    'O': '#ffff00', 'S': '#00ff00', 'T': '#aa00ff', 'Z': '#ff0000'
-};
+const SHAPE_COLORS = { 'I': '#00ffff', 'J': '#0000ff', 'L': '#ffaa00', 'O': '#ffff00', 'S': '#00ff00', 'T': '#aa00ff', 'Z': '#ff0000' };
 
 function startTetris() {
     canvas = document.getElementById('tetrisCanvas');
     if (!canvas) return;
     ctx = canvas.getContext('2d');
-    
     tetrisActive = true;
     score = 0;
     tetrisGrid = Array.from({ length: TETRIS_ROWS }, () => Array(TETRIS_COLS).fill(0));
@@ -144,12 +133,8 @@ function startTetris() {
 function spawnPiece() {
     const types = Object.keys(SHAPES);
     const type = types[Math.floor(Math.random() * types.length)];
-    currentPiece = { type, shape: SHAPES[type], x: Math.floor(TETRIS_COLS / 2) - 1, y: 0, color: SHAPE_COLORS[type] };
-    if (checkTetrisCollision(0, 0, currentPiece.shape)) {
-        alert("GAME OVER! SCORE: " + score);
-        stopTetris();
-        navigateTo('dashboard.html');
-    }
+    currentPiece = { type, shape: SHAPES[type], x: Math.floor(TETRIS_COLS/2)-1, y: 0, color: SHAPE_COLORS[type] };
+    if (checkTetrisCollision(0, 0, currentPiece.shape)) { alert("GAME OVER!"); stopTetris(); navigateTo('dashboard.html'); }
 }
 
 function handleTetrisInput(e) {
@@ -161,16 +146,8 @@ function handleTetrisInput(e) {
 }
 
 function movePiece(dx, dy) {
-    if (!checkTetrisCollision(dx, dy, currentPiece.shape)) {
-        currentPiece.x += dx;
-        currentPiece.y += dy;
-        return true;
-    }
-    if (dy > 0) {
-        lockPiece();
-        checkLines();
-        spawnPiece();
-    }
+    if (!checkTetrisCollision(dx, dy, currentPiece.shape)) { currentPiece.x += dx; currentPiece.y += dy; return true; }
+    if (dy > 0) { lockPiece(); checkLines(); spawnPiece(); }
     return false;
 }
 
@@ -193,20 +170,14 @@ function checkTetrisCollision(dx, dy, shape) {
 
 function lockPiece() {
     currentPiece.shape.forEach((row, r) => {
-        row.forEach((val, c) => {
-            if (val && currentPiece.y + r >= 0) tetrisGrid[currentPiece.y + r][currentPiece.x + c] = currentPiece.color;
-        });
+        row.forEach((val, c) => { if (val && currentPiece.y + r >= 0) tetrisGrid[currentPiece.y + r][currentPiece.x + c] = currentPiece.color; });
     });
 }
 
 function checkLines() {
     let cleared = 0;
     for (let r = TETRIS_ROWS - 1; r >= 0; r--) {
-        if (tetrisGrid[r].every(cell => cell !== 0)) {
-            tetrisGrid.splice(r, 1);
-            tetrisGrid.unshift(Array(TETRIS_COLS).fill(0));
-            cleared++; r++;
-        }
+        if (tetrisGrid[r].every(cell => cell !== 0)) { tetrisGrid.splice(r, 1); tetrisGrid.unshift(Array(TETRIS_COLS).fill(0)); cleared++; r++; }
     }
     if (cleared > 0) {
         score += [0, 100, 300, 500, 800][cleared];
@@ -225,24 +196,17 @@ function tetrisLoop(time = 0) {
 
 function drawTetris() {
     if (!ctx) return;
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     tetrisGrid.forEach((row, r) => row.forEach((col, c) => { if(col) drawBlock(c, r, col); }));
     if (currentPiece) currentPiece.shape.forEach((row, r) => row.forEach((val, c) => { if(val) drawBlock(currentPiece.x+c, currentPiece.y+r, currentPiece.color); }));
 }
 
 function drawBlock(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
-    ctx.strokeStyle = '#fff';
-    ctx.strokeRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+    ctx.fillStyle = color; ctx.fillRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
+    ctx.strokeStyle = '#fff'; ctx.strokeRect(x*BLOCK_SIZE, y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1);
 }
 
-function stopTetris() {
-    tetrisActive = false;
-    cancelAnimationFrame(animationId);
-    document.removeEventListener('keydown', handleTetrisInput);
-}
+function stopTetris() { tetrisActive = false; cancelAnimationFrame(animationId); document.removeEventListener('keydown', handleTetrisInput); }
 
 /* --- 미니 게임 2: PUZZLE BOBBLE --- */
 let gameActive = false;
@@ -254,22 +218,15 @@ function startGame() {
     canvas = document.getElementById('gameCanvas');
     if (!canvas) return;
     ctx = canvas.getContext('2d');
-    
     gameActive = true; score = 0; bubbleGrid = []; particles = []; shootingBubble = null;
     const scoreEl = document.getElementById('game-score');
     if (scoreEl) scoreEl.innerText = 'SCORE: 0';
-
     for(let r = 0; r < 8; r++) {
         bubbleGrid[r] = [];
         for(let c = 0; c < COLS; c++) bubbleGrid[r][c] = B_COLORS[Math.floor(Math.random() * B_COLORS.length)];
     }
     nextColor = B_COLORS[Math.floor(Math.random() * B_COLORS.length)];
-    
-    canvas.onmousemove = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mousePos.x = e.clientX - rect.left; mousePos.y = e.clientY - rect.top;
-    };
-    
+    canvas.onmousemove = (e) => { const rect = canvas.getBoundingClientRect(); mousePos.x = e.clientX - rect.left; mousePos.y = e.clientY - rect.top; };
     canvas.onclick = () => {
         if (shootingBubble) return;
         const angle = Math.atan2(mousePos.y - (canvas.height - 25), mousePos.x - 160);
@@ -323,8 +280,7 @@ function updateShootingBubble() {
             for(let c = 0; c < COLS; c++) {
                 if (bubbleGrid[r][c]) {
                     const off = (r % 2 === 0) ? 0 : BUBBLE_RADIUS;
-                    const bx = c * BUBBLE_RADIUS * 2 + BUBBLE_RADIUS + off;
-                    const by = r * BUBBLE_RADIUS * 1.7 + BUBBLE_RADIUS;
+                    const bx = c * BUBBLE_RADIUS * 2 + BUBBLE_RADIUS + off, by = r * BUBBLE_RADIUS * 1.7 + BUBBLE_RADIUS;
                     const dist = Math.sqrt((shootingBubble.x - bx)**2 + (shootingBubble.y - by)**2);
                     if (dist < BUBBLE_RADIUS * 1.5) { collided = true; break; }
                 }
@@ -351,18 +307,11 @@ function checkBubbleMatch(row, col, color) {
         let {r, c} = queue.shift();
         if(bubbleGrid[r] && bubbleGrid[r][c] === color) {
             group.push({r, c});
-            getBubbleNeighbors(r, c).forEach(n => {
-                if(!visited.has(`${n.r},${n.c}`) && bubbleGrid[n.r] && bubbleGrid[n.r][n.c] === color) {
-                    visited.add(`${n.r},${n.c}`); queue.push(n);
-                }
-            });
+            getBubbleNeighbors(r, c).forEach(n => { if(!visited.has(`${n.r},${n.c}`) && bubbleGrid[n.r] && bubbleGrid[n.r][n.c] === color) { visited.add(`${n.r},${n.c}`); queue.push(n); } });
         }
     }
     if(group.length >= 3) {
-        group.forEach(p => { 
-            createBubbleExplosion(p.r, p.c, bubbleGrid[p.r][p.c]);
-            bubbleGrid[p.r][p.c] = null; 
-        });
+        group.forEach(p => { createBubbleExplosion(p.r, p.c, bubbleGrid[p.r][p.c]); bubbleGrid[p.r][p.c] = null; });
         score += group.length * 50;
         const scoreEl = document.getElementById('game-score');
         if (scoreEl) scoreEl.innerText = 'SCORE: ' + score;
@@ -375,12 +324,8 @@ function getBubbleNeighbors(r, c) {
 }
 
 function createBubbleExplosion(r, c, color) {
-    const off = (r % 2 === 0) ? 0 : BUBBLE_RADIUS;
-    const x = c * BUBBLE_RADIUS * 2 + BUBBLE_RADIUS + off;
-    const y = r * BUBBLE_RADIUS * 1.7 + BUBBLE_RADIUS;
-    for(let i=0; i<8; i++) {
-        particles.push({ x, y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, life: 1, color });
-    }
+    const off = (r % 2 === 0) ? 0 : BUBBLE_RADIUS, x = c * 32 + 16 + off, y = r * 27 + 16;
+    for(let i=0; i<8; i++) particles.push({ x, y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, life: 1, color });
 }
 
 function updateParticles() {
